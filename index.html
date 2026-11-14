@@ -136,9 +136,15 @@ async function loadWordsFromAPI(){
   try {
     const response=await fetch(API_URL);
     if(!response.ok) throw new Error("HTTP "+response.status);
-    const data=await response.json();
-    if(!data || !Array.isArray(data.words) || data.words.length===0) throw new Error("API вернул пустой список");
-    WORDS=data.words.map(w=>({id:w.id,hanzi:w.hanzi,pinyin:w.pinyin,ru:w.meaning_ru,emoji:w.emoji||"📘",category:w.category,hsk_level:w.hsk_level}));
+    const data = await response.json();
+
+const wordList = Array.isArray(data) ? data : data.words;
+
+if (!Array.isArray(wordList) || wordList.length === 0) {
+  throw new Error("API вернул пустой список");
+}
+
+WORDS = wordList.map(w => ({id:w.id,hanzi:w.hanzi,pinyin:w.pinyin,ru:w.meaning_ru,emoji:w.emoji||"📘",category:w.category,hsk_level:w.hsk_level}));
     currentWord=WORDS[0];
     document.querySelectorAll(".pill").forEach(el=>{if(el.textContent.includes("319 слов"))el.textContent=WORDS.length+" слов"});
     updateStats();
